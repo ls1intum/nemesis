@@ -5,7 +5,6 @@ on:
 
 env:
   java: 21
-  metricsthon-url: http://18.158.225.108:8081/api/trigger-metrics-scrape
 
 jobs:
   gather-metrics:
@@ -93,15 +92,15 @@ jobs:
           name: Artemis-Metrics
           path: metrics-generation/output/*
 
-      - name: Call Metricsthon Webhook to trigger metrics scrape
+      - name: Call app Webhook to trigger metrics scrape
         run: |
           artifact_url="${{ steps.artifact-upload-step.outputs.artifact-url }}"
           artifact_id=$(echo "$artifact_url" | grep -oE '[^/]+$')
 
           echo "Artifact URL: $artifact_url"
           echo "Artifact ID: $artifact_id"
-
-          curl -X POST -H "Content-Type: application/json" -d "{\"artifactID\": \"$artifact_id\"}" "${{ env.metricsthon-url }}"
+          
+          curl -X POST -H "Content-Type: application/json" -d "{\"artifactID\": \"$artifact_id\"}" "${{ vars.APP_SCRAPE_URL }}"
         if: always()
 
       - name: Clean Up Docker Containers
