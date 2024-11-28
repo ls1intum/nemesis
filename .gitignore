@@ -1,0 +1,10 @@
+.idea
+
+.env
+
+node_modules
+.next
+next-env.d.ts
+
+metrics-generation/output
+metrics-generation/jqassistant*

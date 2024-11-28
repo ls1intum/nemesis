@@ -1,0 +1,112 @@
+name: Build Artemis and Gather Metrics
+
+on:
+  workflow_dispatch:
+
+env:
+  java: 21
+  metricsthon-url: http://18.158.225.108:8081/api/trigger-metrics-scrape
+
+jobs:
+  gather-metrics:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Clone Artemis Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ls1intum/Artemis
+          path: metrics-generation/Artemis
+          fetch-depth: 1
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "${{ env.java }}"
+          cache: "gradle"
+
+      - name: Build Artemis-JAR with Gradle
+        run: |
+          cd metrics-generation/Artemis
+          chmod +x gradlew
+          ./gradlew build -x webapp -x test
+          echo "Artemis project built."
+          cp build/libs/Artemis-*.jar ../Artemis.jar
+
+      - name: Download jqassistant CLI
+        run: |
+          wget -O jqassistant-cli.zip "https://repo1.maven.org/maven2/com/buschmais/jqassistant/cli/jqassistant-commandline-neo4jv5/2.5.0/jqassistant-commandline-neo4jv5-2.5.0-distribution.zip"
+          unzip jqassistant-cli.zip -d .
+          rm jqassistant-cli.zip
+          echo "jqassistant CLI downloaded and extracted."
+        working-directory: metrics-generation
+
+      - name: Run jqassistant Scan
+        run: |
+          chmod +x jqassistant-commandline-neo4jv5-2.5.0/bin/jqassistant.sh
+          ./jqassistant-commandline-neo4jv5-2.5.0/bin/jqassistant.sh scan
+          echo "jqassistant scan completed."
+        working-directory: metrics-generation
+
+      - name: Start Neo4j with Docker Compose
+        run: |
+          docker compose up -d
+
+          echo "Waiting for Neo4j to start..."
+          for i in {1..30}; do
+            if curl -s http://localhost:7474 >/dev/null; then
+              echo "Neo4j is up!"
+              break
+            else
+              echo "Neo4j not ready yet. Retrying in 5 seconds..."
+              sleep 5
+            fi
+            if [ $i -eq 30 ]; then
+              echo "Neo4j failed to start."
+              exit 1
+            fi
+          done
+        working-directory: metrics-generation
+
+      - name: Retrieve and store metrics from Neo4j
+        run: |
+          chmod +x query-neo4j.sh
+          ./query-neo4j.sh
+          echo "query-neo4j.sh executed."
+        working-directory: metrics-generation
+
+      - name: Generate metadata
+        run: |
+          chmod +x generate-metadata.sh
+          ./generate-metadata.sh
+          echo "generate-metadata.sh executed."
+        working-directory: metrics-generation
+
+      - name: Upload Metrics Output
+        id: artifact-upload-step
+        uses: actions/upload-artifact@v4
+        with:
+          name: Artemis-Metrics
+          path: metrics-generation/output/*
+
+      - name: Call Metricsthon Webhook to trigger metrics scrape
+        run: |
+          artifact_url="${{ steps.artifact-upload-step.outputs.artifact-url }}"
+          artifact_id=$(echo "$artifact_url" | grep -oE '[^/]+$')
+
+          echo "Artifact URL: $artifact_url"
+          echo "Artifact ID: $artifact_id"
+
+          curl -X POST -H "Content-Type: application/json" -d "{\"artifactID\": \"$artifact_id\"}" "${{ env.metricsthon-url }}"
+        if: always()
+
+      - name: Clean Up Docker Containers
+        if: always()
+        run: |
+          docker compose down
+          echo "Docker containers stopped."
+        working-directory: metrics-generation

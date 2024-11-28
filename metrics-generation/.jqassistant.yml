@@ -1,0 +1,9 @@
+jqassistant:
+  scan:
+    include:
+      files:
+        - "Artemis.jar"
+    properties:
+      file.exclude:
+        - /BOOT-INF/lib/**
+        - /META-INF/**

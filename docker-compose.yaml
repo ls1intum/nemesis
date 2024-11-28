@@ -1,0 +1,37 @@
+name: artemis-module-metrics
+services:
+  app:
+    build:
+      dockerfile: Dockerfile
+      target: artemis-module-metrics-dev
+    ports:
+      - "3000:3000"
+    environment:
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN}
+      INFLUXDB_ORG: ${INFLUXDB_ORG}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET}
+      REPOSITORY_OWNER: ${REPOSITORY_OWNER}
+      REPOSITORY_NAME: ${REPOSITORY_NAME}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+    volumes:
+      - ./:/app
+
+  influxdb:
+    image: influxdb:2.7.6
+    volumes:
+      - influx-etc:/etc/influxdb2
+      - influx-lib:/var/lib/influxdb2
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: "setup"
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET}
+      DOCKER_INFLUXDB_INIT_USERNAME: ${DOCKER_INFLUXDB_INIT_USERNAME}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${DOCKER_INFLUXDB_INIT_PASSWORD}
+
+volumes:
+  influx-etc:
+  influx-lib:
