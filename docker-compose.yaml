@@ -1,9 +1,9 @@
-name: artemis-module-metrics
+name: nemesis
 services:
   app:
     build:
       dockerfile: Dockerfile
-      target: artemis-module-metrics-dev
+      target: nemesis-dev
     ports:
       - "3000:3000"
     environment:

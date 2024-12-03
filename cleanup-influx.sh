@@ -1,6 +1,6 @@
 #!/bin/bash
 INFLUX_URL="http://localhost:8086"
-ORG="artemis-module-metrics"
+ORG="nemesis"
 BUCKET="metrics"
 INFLUX_TOKEN="AzOkv9O3yPxka4EcSn6GNkh_UQUhB6La8chV6iOpmbVpI_c2Kqh4CVkXPkBoWm6q_a5dsuphZ7KrZdT92DRIAg=="
 

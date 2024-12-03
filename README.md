@@ -13,7 +13,7 @@ This project contains the following (relevant) folders:
 
 For the metrics generation, refer to the [README](metrics-generation/README.md) in the `metrics-generation` folder.
 
-For the app, run `docker-compose up` in the root folder. The app will be available at `http://localhost:3000`. This docker setup is intended to also be used in development while supporting hot-reloading. The production application is built using a different `target` (for dev: `artemis-module-metrics-dev` as set in the [docker-compose.yaml](docker-compose.yaml)).
+For the app, run `docker-compose up` in the root folder. The app will be available at `http://localhost:3000`. This docker setup is intended to also be used in development while supporting hot-reloading. The production application is built using a different `target` (for dev: `nemesis-dev` as set in the [docker-compose.yaml](docker-compose.yaml)).
 
 ## Backend Endpoints
 
