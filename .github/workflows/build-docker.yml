@@ -8,9 +8,6 @@ on:
 jobs:
   docker-build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        architecture: [linux/amd64, linux/arm64]
 
     steps:
       - name: Checkout repository
@@ -26,7 +23,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up multi-platform builder
+      - name: Set up Docker builder
         run: |
           docker buildx create --name mybuilder --use
           docker buildx inspect --bootstrap
@@ -38,8 +35,8 @@ jobs:
         run: |
           docker buildx build \
             --target nemesis \
-            --platform ${{ matrix.architecture }} \
-            --build-arg BUILDPLATFORM=${{ matrix.architecture }} \
+            --platform linux/amd64 \
+            --build-arg BUILDPLATFORM=linux/amd64 \
             --tag ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:${{ env.TAG }} \
             --tag ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:latest \
             --push .
