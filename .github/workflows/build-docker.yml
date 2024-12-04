@@ -31,11 +31,14 @@ jobs:
           docker buildx create --name mybuilder --use
           docker buildx inspect --bootstrap
 
+      - name: Sanitize branch name for Docker tag
+        run: echo "TAG=${{ github.ref_name }}" | sed 's/[\/:]/-/g' >> $GITHUB_ENV
+
       - name: Build and Push Docker Image
         run: |
           docker buildx build \
             --target nemesis \
             --build-arg BUILDPLATFORM=${{ matrix.architecture }} \
-            --tag ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:${{ github.ref_name }}-${{ matrix.architecture }} \
+            --tag ghcr.io/${{ github.repository_owner }}/${{ github.repository }}::${{ env.TAG }} \
             --tag ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:latest \
             --push .
