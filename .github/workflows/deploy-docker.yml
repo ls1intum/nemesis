@@ -13,7 +13,7 @@ jobs:
       url: 'https://${{ vars.SERVER_HOST }}'
     steps:
       - name: SSH to VM and Execute Docker-Compose Down
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ vars.VM_HOST }}
           username: ${{ vars.VM_USERNAME }}
@@ -34,7 +34,7 @@ jobs:
           target: /home/${{ vars.VM_USERNAME }}
 
       - name: SSH to VM and create .env.prod file
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ vars.VM_HOST }}
           username: ${{ vars.VM_USERNAME }}
@@ -61,7 +61,7 @@ jobs:
           target: /home/${{ vars.VM_USERNAME }}
 
       - name: SSH to VM and Execute Docker-Compose Up
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ vars.VM_HOST }}
           username: ${{ vars.VM_USERNAME }}
