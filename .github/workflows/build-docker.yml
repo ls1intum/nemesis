@@ -31,8 +31,8 @@ jobs:
           docker buildx create --name mybuilder --use
           docker buildx inspect --bootstrap
 
-      - name: Sanitize branch name for Docker tag
-        run: echo "TAG=${{ github.ref_name }}" | sed 's/[\/:]/-/g' >> $GITHUB_ENV
+      - name: Get short commit hash for Docker tag
+        run: echo "TAG=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
 
       - name: Build and Push Docker Image
         run: |
