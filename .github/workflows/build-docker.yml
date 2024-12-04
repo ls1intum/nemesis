@@ -37,6 +37,6 @@ jobs:
             --target nemesis \
             --platform linux/amd64 \
             --build-arg BUILDPLATFORM=linux/amd64 \
-            --tag ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:${{ env.TAG }} \
-            --tag ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:latest \
+            --tag ghcr.io/${{ github.repository }}:${{ env.TAG }} \
+            --tag ghcr.io/${{ github.repository }}:latest \
             --push .
