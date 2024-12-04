@@ -39,6 +39,6 @@ jobs:
           docker buildx build \
             --target nemesis \
             --build-arg BUILDPLATFORM=${{ matrix.architecture }} \
-            --tag ghcr.io/${{ github.repository_owner }}/${{ github.repository }}::${{ env.TAG }} \
+            --tag ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:${{ env.TAG }} \
             --tag ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:latest \
             --push .
