@@ -1,0 +1,10 @@
+nemesis.ase.cit.tum.de {
+    reverse_proxy app:3000
+    tls /etc/ssl/cert.pem /etc/ssl/privkey.pem
+}
+
+nemesis.ase.cit.tum.de:8443 {
+    reverse_proxy influxdb:8086
+    tls /etc/ssl/cert.pem /etc/ssl/privkey.pem
+}
+
