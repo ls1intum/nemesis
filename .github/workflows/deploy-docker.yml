@@ -1,7 +1,9 @@
 name: Deploy Docker
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - feat/build-on-push
 
 jobs:
   deploy:
