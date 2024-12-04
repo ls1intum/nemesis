@@ -1,9 +1,7 @@
 name: nemesis
 services:
   app:
-    build:
-      dockerfile: Dockerfile
-      target: nemesis-dev
+    image: ghcr.io/ls1intum/nemesis/:latest
     environment:
       INFLUXDB_URL: http://influxdb:8086
       INFLUXDB_TOKEN: ${INFLUXDB_TOKEN}
