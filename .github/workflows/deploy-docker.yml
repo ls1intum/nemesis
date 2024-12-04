@@ -51,6 +51,15 @@ jobs:
             echo "REPOSITORY_NAME=${{ vars.REPOSITORY_NAME }}" >> .env.prod
             echo "GITHUB_TOKEN=${{ secrets.GH_PULL_TOKEN }}" >> .env.prod
 
+      - name: Copy Caddyfile
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.VM_HOST }}
+          username: ${{ vars.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          source: "./Caddyfile"
+          target: /home/${{ vars.VM_USERNAME }}
+
       - name: SSH to VM and Execute Docker-Compose Up
         uses: appleboy/ssh-action@v1.0.3
         with:
