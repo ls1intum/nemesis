@@ -12,6 +12,12 @@ jobs:
       name: production
       url: 'https://${{ vars.SERVER_HOST }}'
     steps:
+      - name: Print Runner Info
+        run: |
+          echo "Runner Name: $RUNNER_NAME"
+          echo "Runner Group: $RUNNER_GROUP"
+          echo "Is Self-hosted? $RUNNER_GROUP" | grep -qi "self-hosted" && echo "Yes" || echo "No"
+
       - name: Run SSH Command with Debug
         env:
           SSH_USERNAME: ${{ vars.VM_USERNAME }}
