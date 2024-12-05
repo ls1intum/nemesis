@@ -1,7 +1,7 @@
 name: nemesis
 services:
   app:
-    image: ghcr.io/ls1intum/nemesis/:latest
+    image: ghcr.io/ls1intum/nemesis:latest
     environment:
       INFLUXDB_URL: http://influxdb:8086
       INFLUXDB_TOKEN: ${INFLUXDB_TOKEN}
