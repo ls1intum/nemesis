@@ -19,11 +19,11 @@ jobs:
           SSH_HOST: ${{ vars.VM_HOST }}
           proxy_host: ${{ vars.DEPLOYMENT_GATEWAY_HOST }}
           proxy_username: ${{ vars.DEPLOYMENT_GATEWAY_USER }}
-          proxy_port: ${{ vars.DEPLOYMENT_GATEWAY_PORT }}
+          proxy_port: ${{ vars.DEPLOYMENT_GATEWAY_USER }}
         run: |
-          echo "proxy_hots: $proxy_host"
-          echo "proxy_username: $proxy_username"
-          echo "proxy_port: $proxy_port"
+          echo "proxy_hots: ${{ vars.DEPLOYMENT_GATEWAY_HOST }}"
+          echo "proxy_username: ${{ vars.DEPLOYMENT_GATEWAY_USER }}"
+          echo "proxy_port: ${{ vars.DEPLOYMENT_GATEWAY_USER }}"
           
           # Add the private key to the SSH agent
           echo "$SSH_PRIVATE_KEY" > ssh_key
