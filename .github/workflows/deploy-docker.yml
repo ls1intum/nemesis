@@ -25,6 +25,48 @@ jobs:
           ssh-add ssh_key
           ssh -vvv -o StrictHostKeyChecking=no $SSH_USERNAME@$SSH_HOST "echo 'Hello World!'"
 
+      - name: Run SSH Command with Proxy and Debug
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          PROXY_HOST: ${{ vars.DEPLOYMENT_GATEWAY_HOST }}
+          PROXY_USERNAME: ${{ vars.DEPLOYMENT_GATEWAY_USER }}
+          PROXY_KEY: ${{ secrets.DEPLOYMENT_GATEWAY_SSH_KEY }}
+          PROXY_PORT: ${{ vars.DEPLOYMENT_GATEWAY_PORT }}
+        run: |
+          echo "$PROXY_KEY" > proxy_key
+          chmod 600 proxy_key
+  
+          echo "$SSH_PRIVATE_KEY" > ssh_key
+          chmod 600 ssh_key
+  
+          eval "$(ssh-agent -s)"
+          ssh-add proxy_key
+          ssh-add ssh_key
+  
+          echo "
+          Host proxy
+           HostName $PROXY_HOST
+           User $PROXY_USERNAME
+           Port $PROXY_PORT
+           IdentityFile proxy_key
+           StrictHostKeyChecking no
+  
+          Host target
+           HostName $SSH_HOST
+           User user
+           IdentityFile ssh_key
+           ProxyJump proxy
+           StrictHostKeyChecking no
+          " > ~/.ssh/config
+  
+          chmod 600 ~/.ssh/config
+          
+          # just to be sure
+          head -c 20 ~/.ssh/config
+  
+          ssh -vvv target "echo 'Hello World!'"
+
       - name: SSH to VM and Execute Docker-Compose Down
         uses: appleboy/ssh-action@master
         with:
