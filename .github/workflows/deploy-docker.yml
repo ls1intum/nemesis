@@ -12,6 +12,19 @@ jobs:
       name: production
       url: 'https://${{ vars.SERVER_HOST }}'
     steps:
+      - name: Run SSH Command with Debug
+        env:
+          SSH_USERNAME: ${{ vars.VM_USERNAME }}
+          SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ vars.VM_HOST }}
+        run: |
+          # Add the private key to the SSH agent
+          echo "$SSH_PRIVATE_KEY" > ssh_key
+          chmod 600 ssh_key
+          eval "$(ssh-agent -s)"
+          ssh-add ssh_key
+          ssh -vvv -o StrictHostKeyChecking=no $SSH_USERNAME@$SSH_HOST "echo 'Hello World!'"
+
       - name: SSH to VM and Execute Docker-Compose Down
         uses: appleboy/ssh-action@master
         with:
