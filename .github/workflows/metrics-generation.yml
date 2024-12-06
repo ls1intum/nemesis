@@ -1,4 +1,4 @@
-name: Build Artemis and Gather Metrics
+name: Generate and Ingest Metrics
 
 on:
   workflow_dispatch:

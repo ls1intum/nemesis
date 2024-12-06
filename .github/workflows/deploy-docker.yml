@@ -1,4 +1,4 @@
-name: Deploy Docker
+name: Deploy Docker to VM
 
 on:
   workflow_dispatch:
