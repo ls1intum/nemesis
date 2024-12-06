@@ -24,7 +24,7 @@ jobs:
           fi
 
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://ghcr.io/v2/${{ github.repository }}/manifests/${{ IMAGE_TAG }})
+            https://ghcr.io/v2/${{ github.repository }}/manifests/$IMAGE_TAG)
 
           if [ "$STATUS" -ne 200 ]; then
             echo "Image with TAG $IMAGE_TAG not found in GitHub Container Registry. Aborting..."
@@ -49,7 +49,7 @@ jobs:
 
       - name: Set image tag in DOcker Compose File
         run: |
-          sed -i "s/\$IMAGE_TAG/${{ IMAGE_TAG }}/g" docker-compose.prod.yml
+          sed -i "s/\$IMAGE_TAG/$IMAGE_TAG/g" docker-compose.prod.yml
 
       - name: Copy Docker Compose File From Repo to VM Host
         uses: appleboy/scp-action@v0.1.7
