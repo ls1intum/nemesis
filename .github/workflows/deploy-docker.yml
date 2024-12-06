@@ -5,6 +5,9 @@ on:
     branches:
       - feat/build-on-push
 
+env:
+  IMAGE_TAG: latest
+
 jobs:
   deploy:
     runs-on: self-hosted
@@ -16,7 +19,6 @@ jobs:
         run: |
           set -e # Ensure the script stops on the first error
           # set default tag to latest if not provided
-          IMAGE_TAG=latest
           if [ -z "$IMAGE_TAG" ]; then
               IMAGE_TAG="latest"
           fi
