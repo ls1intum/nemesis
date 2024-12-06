@@ -18,10 +18,10 @@ jobs:
       - name: Check image tag exists
         run: |
           URL="https://ghcr.io/v2/${{ github.repository }}/manifests/${{ env.IMAGE_TAG }}"
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $URL)
+          STATUS=$(curl -vv -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $URL)
 
           if [ "$STATUS" -ne 200 ]; then
-            echo "Image with TAG ${{ env.IMAGE_TAG }} not found in GitHub Container Registry. Aborting..."
+            echo "Image with TAG '${{ env.IMAGE_TAG }}'' not found in GitHub Container Registry. Aborting..."
             exit 1
           fi
 
