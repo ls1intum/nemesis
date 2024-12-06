@@ -1,12 +1,13 @@
 name: Deploy Docker to VM
 
 on:
-  push:
-    branches:
-      - feat/build-on-push
-
-env:
-  IMAGE_TAG: latest
+  workflow_dispatch:
+    inputs:
+      IMAGE_TAG:
+        description: 'The tag of the images to be deployed. This should be the short commit hash (first 7 characters of commit hash) or "latest".'
+        required: false
+        type: string
+        default: latest
 
 jobs:
   deploy:
@@ -17,11 +18,11 @@ jobs:
     steps:
       - name: Check image tag exists
         run: |
-          URL="https://ghcr.io/v2/${{ github.repository }}/manifests/${{ env.IMAGE_TAG }}"
-          STATUS=$(curl -vv -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $URL)
+          URL="https://ghcr.io/v2/${{ github.repository }}/manifests/${{ github.event.inputs.IMAGE_TAG }}"
+          STATUS=$(curl -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $URL)
 
           if [ "$STATUS" -ne 200 ]; then
-            echo "Image with TAG '${{ env.IMAGE_TAG }}'' not found in GitHub Container Registry. Aborting..."
+            echo "Image with TAG '${{ github.event.inputs.IMAGE_TAG }}'' not found in GitHub Container Registry. Aborting..."
             exit 1
           fi
 
@@ -43,7 +44,7 @@ jobs:
 
       - name: Set image tag in DOcker Compose File
         run: |
-          sed -i "s/\$IMAGE_TAG/${{ env.IMAGE_TAG }}/g" docker-compose.prod.yml
+          sed -i "s/\$IMAGE_TAG/${{ github.event.inputs.IMAGE_TAG }}/g" docker-compose.prod.yml
 
       - name: Copy Docker Compose File From Repo to VM Host
         uses: appleboy/scp-action@v0.1.7
