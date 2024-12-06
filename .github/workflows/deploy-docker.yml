@@ -5,6 +5,9 @@ on:
     branches:
       - feat/build-on-push
 
+env:
+  IMAGE_TAG: latest
+
 jobs:
   deploy:
     runs-on: self-hosted
@@ -14,12 +17,6 @@ jobs:
     steps:
       - name: Check image tag exists
         run: |
-          set -e # Ensure the script stops on the first error
-          # set default tag to latest if not provided
-          if [ -z "$IMAGE_TAG" ]; then
-              echo "IMAGE_TAG=latest" >> $GITHUB_ENV
-          fi
-
           URL="https://ghcr.io/v2/${{ github.repository }}/manifests/${{ env.IMAGE_TAG }}"
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $URL)
 
