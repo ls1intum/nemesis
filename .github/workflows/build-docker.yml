@@ -1,0 +1,43 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  docker-build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker builder
+        run: |
+          docker buildx create --name mybuilder --use
+          docker buildx inspect --bootstrap
+
+      - name: Get short commit hash for Docker tag
+        run: echo "TAG=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
+      - name: Build and Push Docker Image
+        run: |
+          docker buildx build \
+            --target nemesis \
+            --platform linux/amd64 \
+            --build-arg BUILDPLATFORM=linux/amd64 \
+            --tag ghcr.io/${{ github.repository }}:${{ env.TAG }} \
+            --tag ghcr.io/${{ github.repository }}:latest \
+            --push .

@@ -1,0 +1,46 @@
+name: nemesis
+services:
+  app:
+    image: ghcr.io/ls1intum/nemesis:$IMAGE_TAG
+    environment:
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN}
+      INFLUXDB_ORG: ${INFLUXDB_ORG}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET}
+      REPOSITORY_OWNER: ${REPOSITORY_OWNER}
+      REPOSITORY_NAME: ${REPOSITORY_NAME}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+
+  caddy:
+    image: caddy:latest
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8443:8443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+      - /var/lib/rbg-cert/2024-12-03/nemesis.ase.cit.tum.de.cert.pem:/etc/ssl/cert.pem:ro
+      - /var/lib/rbg-cert/2024-12-03/nemesis.ase.cit.tum.de.privkey.pem:/etc/ssl/privkey.pem:ro
+    depends_on:
+      - app
+
+  influxdb:
+    image: influxdb:2.7.6
+    volumes:
+      - influx-etc:/etc/influxdb2
+      - influx-lib:/var/lib/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: "setup"
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET}
+      DOCKER_INFLUXDB_INIT_USERNAME: ${DOCKER_INFLUXDB_INIT_USERNAME}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${DOCKER_INFLUXDB_INIT_PASSWORD}
+
+volumes:
+  influx-etc:
+  influx-lib:
+  caddy_data:
+  caddy_config:
