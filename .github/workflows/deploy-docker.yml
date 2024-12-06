@@ -5,9 +5,6 @@ on:
     branches:
       - feat/build-on-push
 
-env:
-  IMAGE_TAG: latest
-
 jobs:
   deploy:
     runs-on: self-hosted
@@ -20,14 +17,14 @@ jobs:
           set -e # Ensure the script stops on the first error
           # set default tag to latest if not provided
           if [ -z "$IMAGE_TAG" ]; then
-              IMAGE_TAG="latest"
+              echo "IMAGE_TAG=latest" >> $GITHUB_ENV
           fi
 
-          URL="https://ghcr.io/v2/${{ github.repository }}/manifests/$IMAGE_TAG"
+          URL="https://ghcr.io/v2/${{ github.repository }}/manifests/${{ env.IMAGE_TAG }}"
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $URL)
 
           if [ "$STATUS" -ne 200 ]; then
-            echo "Image with TAG $IMAGE_TAG not found in GitHub Container Registry. Aborting..."
+            echo "Image with TAG ${{ env.IMAGE_TAG }} not found in GitHub Container Registry. Aborting..."
             exit 1
           fi
 
@@ -49,7 +46,7 @@ jobs:
 
       - name: Set image tag in DOcker Compose File
         run: |
-          sed -i "s/\$IMAGE_TAG/$IMAGE_TAG/g" docker-compose.prod.yml
+          sed -i "s/\$IMAGE_TAG/${{ env.IMAGE_TAG }}/g" docker-compose.prod.yml
 
       - name: Copy Docker Compose File From Repo to VM Host
         uses: appleboy/scp-action@v0.1.7
