@@ -1,12 +1,9 @@
 name: Deploy Docker to VM
 
 on:
-  workflow_dispatch:
-    inputs:
-      IMAGE_TAG:
-        description: 'The tag of the images to be deployed. This should be the short commit hash (first 7 characters of commit hash). Leave empty to deploy "latest".'
-        required: false
-        type: string
+  push:
+    branches:
+      - feat/build-on-push
 
 jobs:
   deploy:
@@ -18,7 +15,6 @@ jobs:
       - name: Check image tag exists
         run: |
           set -e # Ensure the script stops on the first error
-          IMAGE_TAG=${{ github.event.inputs.IMAGE_TAG }}
           # set default tag to latest if not provided
           if [ -z "$IMAGE_TAG" ]; then
               IMAGE_TAG="latest"
