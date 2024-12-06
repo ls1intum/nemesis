@@ -1,9 +1,12 @@
 name: Deploy Docker
 
 on:
-  push:
-    branches:
-      - feat/build-on-push
+  workflow_dispatch:
+    inputs:
+      IMAGE_TAG:
+        description: 'The tag of the images to be deployed. This should be the short commit hash (first 7 characters of commit hash). Leave empty to deploy "latest".'
+        required: false
+        type: string
 
 jobs:
   deploy:
@@ -12,6 +15,23 @@ jobs:
       name: production
       url: 'https://${{ vars.SERVER_HOST }}'
     steps:
+      - name: Check image tag exists
+        run: |
+          set -e # Ensure the script stops on the first error
+          IMAGE_TAG=${{ github.event.inputs.IMAGE_TAG }}
+          # set default tag to latest if not provided
+          if [ -z "$IMAGE_TAG" ]; then
+              IMAGE_TAG="latest"
+          fi
+
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://ghcr.io/v2/${{ github.repository }}/manifests/${{ IMAGE_TAG }})
+
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Image with TAG $IMAGE_TAG not found in GitHub Container Registry. Aborting..."
+            exit 1
+          fi
+
       - name: SSH to VM and Execute Docker-Compose Down
         uses: appleboy/ssh-action@master
         with:
@@ -27,6 +47,10 @@ jobs:
 
       - name: checkout
         uses: actions/checkout@v4
+
+      - name: Set image tag in DOcker Compose File
+        run: |
+          sed -i "s/\$IMAGE_TAG/${{ IMAGE_TAG }}/g" docker-compose.prod.yml
 
       - name: Copy Docker Compose File From Repo to VM Host
         uses: appleboy/scp-action@v0.1.7
