@@ -23,8 +23,8 @@ jobs:
               IMAGE_TAG="latest"
           fi
 
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://ghcr.io/v2/${{ github.repository }}/manifests/$IMAGE_TAG)
+          URL="https://ghcr.io/v2/${{ github.repository }}/manifests/$IMAGE_TAG"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $URL)
 
           if [ "$STATUS" -ne 200 ]; then
             echo "Image with TAG $IMAGE_TAG not found in GitHub Container Registry. Aborting..."
