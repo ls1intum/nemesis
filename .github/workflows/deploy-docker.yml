@@ -16,6 +16,7 @@ jobs:
         run: |
           set -e # Ensure the script stops on the first error
           # set default tag to latest if not provided
+          IMATE_TAG=latest
           if [ -z "$IMAGE_TAG" ]; then
               IMAGE_TAG="latest"
           fi
