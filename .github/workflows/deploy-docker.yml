@@ -54,9 +54,9 @@ jobs:
           script: |
             rm -f .env.prod # Delete if exists
             touch .env.prod 
-            echo "INFLUXDB_TOKEN=\"${{ secrets.INFLUXDB_TOKEN }}\"" >> .env
-            echo "INFLUXDB_ORG=${{ vars.INFLUXDB_ORG }}" >> .env
-            echo "INFLUXDB_BUCKET=${{ vars.INFLUXDB_BUCKET }}" >> .env
+            echo "INFLUXDB_TOKEN=\"${{ secrets.INFLUXDB_TOKEN }}\"" >> .env.prod
+            echo "INFLUXDB_ORG=${{ vars.INFLUXDB_ORG }}" >> .env.prod
+            echo "INFLUXDB_BUCKET=${{ vars.INFLUXDB_BUCKET }}" >> .env.prod
             echo "DOCKER_INFLUXDB_INIT_USERNAME=${{ vars.DOCKER_INFLUXDB_INIT_USERNAME }}" >> .env.prod
             echo "DOCKER_INFLUXDB_INIT_PASSWORD=\"${{ secrets.DOCKER_INFLUXDB_INIT_PASSWORD }}\"" >> .env.prod
             echo "REPOSITORY_OWNER=${{ vars.REPOSITORY_OWNER }}" >> .env.prod
