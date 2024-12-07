@@ -1,27 +1,19 @@
 import { z } from "zod";
 import { EndpointTypeCountDAO } from "@server/domain/dao/endpointTypeCount";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
 export const validateEndpointTypeCount = (data: string): Record<string, EndpointTypeCountDAO> => {
   const jsonData = JSON.parse(data);
-  const result = CompleteSchema.safeParse(jsonData);
-  if (!result.success) {
-    throw new Error("Invalid data format");
+
+  const result = parsedSchema.safeParse(jsonData);
+  if (result.error) {
+    throw new ZodValidationError(result.error);
   }
+
   return result.data;
 };
 
-const DataRowSchema = z.object({
-  row: z.tuple([
-    z.string(), // Module name
-    z.number(), // getMappings
-    z.number(), // postMappings
-    z.number(), // putMappings
-    z.number(), // patchMappings
-    z.number(), // deleteMappings
-  ]),
-});
-
-const ResultsSchema = z.object({
+const rawSchema = z.object({
   results: z
     .array(
       z.object({
@@ -37,13 +29,24 @@ const ResultsSchema = z.object({
             ]),
           )
           .length(6),
-        data: z.array(DataRowSchema),
+        data: z.array(
+          z.object({
+            row: z.tuple([
+              z.string(), // Module name
+              z.number(), // getMappings
+              z.number(), // postMappings
+              z.number(), // putMappings
+              z.number(), // patchMappings
+              z.number(), // deleteMappings
+            ]),
+          }),
+        ),
       }),
     )
-    .min(1),
+    .length(1),
 });
 
-const CompleteSchema = ResultsSchema.transform((data) => {
+const parsedSchema = rawSchema.transform((data) => {
   const result = data.results[0];
   const { columns, data: rows } = result;
 

@@ -3,21 +3,22 @@ import {
   ExternalServicesRepositoriesCountDAO,
   ExternalServicesRepositoriesCountEntryDAO,
 } from "@server/domain/dao/externalServicesRepositoriesCount";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
 export const validateExternalServicesRepositoriesCount = (
   data: string,
 ): Record<string, ExternalServicesRepositoriesCountDAO> => {
   const jsonData = JSON.parse(data);
-  return transformToRecord(jsonData);
+
+  const parsed = parsedSchema.safeParse(jsonData);
+  if (parsed.error) {
+    throw new ZodValidationError(parsed.error);
+  }
+
+  return parsed.data;
 };
 
-const ExternalServicesRepositoriesCountEntrySchema = z.object({
-  externalClass: z.string(),
-  externalModule: z.string(),
-  count: z.number(),
-});
-
-const ResponseSchema = z.object({
+const rawSchema = z.object({
   results: z.array(
     z.object({
       columns: z.array(z.string()),
@@ -25,7 +26,13 @@ const ResponseSchema = z.object({
         z.object({
           row: z.tuple([
             z.string(), // moduleName
-            z.array(ExternalServicesRepositoriesCountEntrySchema),
+            z.array(
+              z.object({
+                externalClass: z.string(),
+                externalModule: z.string(),
+                count: z.number(),
+              }),
+            ),
           ]),
         }),
       ),
@@ -33,15 +40,8 @@ const ResponseSchema = z.object({
   ),
 });
 
-const transformToRecord = (data: string) => {
-  const safeParsed = ResponseSchema.safeParse(data);
-  if (!safeParsed.success) {
-    throw new Error(
-      `Invalid data format in external_services_repositories_count: ${safeParsed.error}`,
-    );
-  }
-
-  return safeParsed.data.results.reduce(
+const parsedSchema = rawSchema.transform((data) => {
+  return data.results.reduce(
     (record, result) => {
       result.data.forEach((item) => {
         const [moduleName, mappings] = item.row;
@@ -51,4 +51,4 @@ const transformToRecord = (data: string) => {
     },
     {} as Record<string, ExternalServicesRepositoriesCountEntryDAO[]>,
   );
-};
+});
