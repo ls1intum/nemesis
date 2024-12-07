@@ -6,7 +6,7 @@ export const validateLinesOfCodeSchema = (data: unknown): number => {
   if (parsed.error) {
     throw new ZodValidationError(parsed.error);
   }
-  throw parsed.data;
+  return parsed.data;
 };
 
 const rawSchema = z.object({
