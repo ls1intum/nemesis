@@ -3,6 +3,7 @@ import { Point } from "@influxdata/influxdb-client";
 import { InfluxClient } from "@server/infrastructure/influx/influx";
 import { IMetadataRepository } from "@server/domain/repository/metada.repository";
 import { MetadataDAO } from "@server/domain/dao/metadata";
+import {validateMetadataSchema} from "@server/infrastructure/influx/models/metadata.schema";
 
 export class metadataRepositoryImpl implements IMetadataRepository {
   constructor(private readonly influxClient: InfluxClient) {}
@@ -42,18 +43,7 @@ export class metadataRepositoryImpl implements IMetadataRepository {
       |> limit(n: 1)
   `;
 
-    const response = await this.influxClient.collectRows(query);
-
-    let newestMetadata = null;
-    // ToDo: validate correctly
-    response.forEach((row) => {
-      newestMetadata = {
-        commitSHA: (row as any).commit_sha,
-        commitDate: new Date((row as any)._time),
-        artifactID: (row as any).artifactID,
-      };
-    });
-
-    return newestMetadata;
+    const rows = await this.influxClient.collectRows(query);
+    return validateMetadataSchema(rows);
   }
 }
