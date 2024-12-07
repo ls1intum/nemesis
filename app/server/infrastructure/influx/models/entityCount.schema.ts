@@ -1,22 +1,10 @@
-import { z } from "zod";
 import { ZodValidationError } from "@server/domain/value/zodValidationError";
+import { SimpleValueSchema } from "@server/infrastructure/influx/models/simpleValueSchema";
 
 export const validateEntityCountSchema = (data: unknown): number => {
-  const parsed = parsedSchema.safeParse(data);
+  const parsed = SimpleValueSchema.safeParse(data);
   if (parsed.error) {
     throw new ZodValidationError(parsed.error);
   }
   return parsed.data;
 };
-
-const rawSchema = z
-  .array(
-    z.object({
-      _value: z.number(),
-    }),
-  )
-  .length(1);
-
-const parsedSchema = rawSchema.transform((data) => {
-  return data[0]._value;
-});
