@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { MetadataDAO } from "@server/domain/dao/metadata";
-import {ZodValidationError} from "@server/domain/value/zodValidationError";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
 export const parseMetadata = (data: string): MetadataDAO => {
   const jsonData = JSON.parse(data);

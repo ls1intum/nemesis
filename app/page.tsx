@@ -44,7 +44,12 @@ export default async function Home({ searchParams }: HomeProps) {
   const metadataService = applicationContainer.getMetadataService();
   const metadata = await metadataService.getNewestMetadata();
   if (!metadata) {
-    return <p>No metrics available. You might need to trigger a (first) metrics scrape which can take a few seconds to be retrievable from the InfluxDB.</p>;
+    return (
+      <p>
+        No metrics available. You might need to trigger a (first) metrics scrape which can take a
+        few seconds to be retrievable from the InfluxDB.
+      </p>
+    );
   }
 
   const metricsService = applicationContainer.getMetricsService();

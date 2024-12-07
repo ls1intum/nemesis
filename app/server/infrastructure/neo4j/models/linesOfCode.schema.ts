@@ -1,12 +1,12 @@
 import { z } from "zod";
-import {ZodValidationError} from "@server/domain/value/zodValidationError";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
 export const validateLinesOfCode = (data: string): Record<string, number> => {
   const parsedData = JSON.parse(data);
   const result = parsedSchema.safeParse(parsedData);
 
   if (result.error) {
-      throw new ZodValidationError(result.error);
+    throw new ZodValidationError(result.error);
   }
 
   return result.data;

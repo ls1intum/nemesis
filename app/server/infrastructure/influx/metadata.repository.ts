@@ -3,7 +3,7 @@ import { Point } from "@influxdata/influxdb-client";
 import { InfluxClient } from "@server/infrastructure/influx/influx";
 import { IMetadataRepository } from "@server/domain/repository/metada.repository";
 import { MetadataDAO } from "@server/domain/dao/metadata";
-import {validateMetadataSchema} from "@server/infrastructure/influx/models/metadata.schema";
+import { validateMetadataSchema } from "@server/infrastructure/influx/models/metadata.schema";
 
 export class metadataRepositoryImpl implements IMetadataRepository {
   constructor(private readonly influxClient: InfluxClient) {}

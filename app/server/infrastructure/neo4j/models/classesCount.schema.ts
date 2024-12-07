@@ -1,5 +1,5 @@
 import { z } from "zod";
-import {ZodValidationError} from "@server/domain/value/zodValidationError";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
 export const validateClassesCountPerModule = (data: string): Record<string, number> => {
   const jsonData = JSON.parse(data);
@@ -13,25 +13,27 @@ export const validateClassesCountPerModule = (data: string): Record<string, numb
 };
 
 const rawSchema = z.object({
-  results: z.array(
-    z.object({
-      columns: z.array(z.string()),
-      data: z.array(
-        z.object({
-          row: z.tuple([z.string(), z.number()]),
-        }),
-      ),
-    }),
-  ).length(1),
+  results: z
+    .array(
+      z.object({
+        columns: z.array(z.string()),
+        data: z.array(
+          z.object({
+            row: z.tuple([z.string(), z.number()]),
+          }),
+        ),
+      }),
+    )
+    .length(1),
 });
 
 const parsedSchema = rawSchema.transform((data) => {
-    return data.results[0].data.reduce(
-        (acc, item) => {
-            const [moduleName, classCount] = item.row;
-            acc[moduleName] = classCount;
-            return acc;
-        },
-        {} as Record<string, number>,
-    );
+  return data.results[0].data.reduce(
+    (acc, item) => {
+      const [moduleName, classCount] = item.row;
+      acc[moduleName] = classCount;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 });
