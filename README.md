@@ -18,5 +18,6 @@ For the app, run `docker-compose up` in the root folder. The app will be availab
 ## Backend Endpoints
 
 The app exposes two public endpoints:
+
 - POST `/api/trigger-metrics-scrape`: Given a artifactId, downloads the GitHub artifact from this repository. You need to store a `GITHUB_TOKEN` in a `.env`-file
 - POST `/api/uploadmetrics`: Given a zip file, uploads the metrics to the InfluxDB. You need to set `METRICS_UPLOAD_ENABLED=true` in a `.env`-file
