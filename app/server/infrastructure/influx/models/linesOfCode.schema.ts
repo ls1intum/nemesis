@@ -1,13 +1,18 @@
 import { z } from "zod";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
 export const validateLinesOfCodeSchema = (data: unknown): number => {
-  const parsed = LinesOfCodeSchema.safeParse(data);
-  if (parsed.success) {
-    return parsed.data._value;
+  const parsed = parsedSchema.safeParse(data);
+  if (parsed.error) {
+    throw new ZodValidationError(parsed.error);
   }
-  throw new Error(parsed.error.errors.map((e) => e.message).join(", "));
+  throw parsed.data;
 };
 
-const LinesOfCodeSchema = z.object({
+const rawSchema = z.object({
   _value: z.number(),
+});
+
+const parsedSchema = rawSchema.transform((data) => {
+  return data._value;
 });

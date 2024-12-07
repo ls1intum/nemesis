@@ -1,13 +1,18 @@
 import { z } from "zod";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
 export const validateNumberEndpointsSchema = (data: unknown): number => {
-  const parsed = NumberEndpointsSchema.safeParse(data);
+  const parsed = parsedSchema.safeParse(data);
   if (!parsed.success) {
-    throw new Error("Invalid data format for Number Endpoints.");
+    throw new ZodValidationError(parsed.error);
   }
-  return parsed.data._value;
+  return parsed.data;
 };
 
-const NumberEndpointsSchema = z.object({
+const rawSchema = z.object({
   _value: z.number(),
+});
+
+const parsedSchema = rawSchema.transform((data) => {
+  return data._value;
 });

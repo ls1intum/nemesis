@@ -1,12 +1,23 @@
 import { z } from "zod";
 import { SemanticClassTypeCountDAO } from "@server/domain/dao/semanticClassTypeCount";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
-const SemanticClassTypeRowSchema = z.object({
-  type: z.enum(["controller", "service", "repository", "entity", "dto"]),
-  _value: z.number(),
-});
+export const validateSemanticClassTypeSchema = (data: unknown): SemanticClassTypeCountDAO => {
+  const parsed = parsedSchema.safeParse(data);
+  if (parsed.error) {
+    throw new ZodValidationError(parsed.error);
+  }
+  return parsed.data;
+};
 
-export const validateSemanticClassTypeSchema = (data: unknown[]): SemanticClassTypeCountDAO => {
+const rawSchema = z.array(
+  z.object({
+    type: z.enum(["controller", "service", "repository", "entity", "dto"]),
+    _value: z.number(),
+  }),
+);
+
+const parsedSchema = rawSchema.transform((data) => {
   const semanticCounts: SemanticClassTypeCountDAO = {
     controller: 0,
     service: 0,
@@ -15,14 +26,9 @@ export const validateSemanticClassTypeSchema = (data: unknown[]): SemanticClassT
     dto: 0,
   };
 
-  data.forEach((row, index) => {
-    const parsed = SemanticClassTypeRowSchema.safeParse(row);
-    if (!parsed.success) {
-      throw new Error(`Invalid data format in semantic_class_type row ${index}: ${parsed.error}`);
-    }
-    const { type, _value } = parsed.data;
-    semanticCounts[type] += _value;
+  data.forEach((row) => {
+    semanticCounts[row.type] += row._value;
   });
 
   return semanticCounts;
-};
+});

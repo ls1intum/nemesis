@@ -1,24 +1,31 @@
-import {MetadataDAO} from "@server/domain/dao/metadata";
-import {z} from "zod";
+import { MetadataDAO } from "@server/domain/dao/metadata";
+import { z } from "zod";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
 export const validateMetadataSchema = (data: unknown): MetadataDAO | null => {
-    const parsed = MetadataSchema.safeParse(data);
-    if (!parsed.success) {
-        return null;
-    }
+  const parsed = parsedSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new ZodValidationError(parsed.error);
+  }
 
-    let newestMetadata = null;
-    parsed.data.forEach((row) => {
-        newestMetadata = {
-            commitSHA: row.commit_sha,
-            commitDate: new Date(row._time),
-        };
-    });
+  return parsed.data;
+};
 
-    return newestMetadata;
-}
-
-const MetadataSchema = z.array(z.object({
+const rawSchema = z.array(
+  z.object({
     commit_sha: z.string(),
     _time: z.string(),
-}))
+  }),
+);
+
+const parsedSchema = rawSchema.transform((data) => {
+  let newestMetadata = null;
+  data.forEach((row) => {
+    newestMetadata = {
+      commitSHA: row.commit_sha,
+      commitDate: new Date(row._time),
+    };
+  });
+
+  return newestMetadata;
+});
