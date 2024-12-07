@@ -14,7 +14,7 @@ import { IMetricsRepository } from "@server/domain/repository/metrics.repository
 import { IMetadataRepository } from "@server/domain/repository/metada.repository";
 
 /**
- * Stores all the "injected" dependencies of the application (cached).
+ * Stores all the injected (singleton) dependencies of the application.
  */
 interface ApplicationContainer {
   getMetricsSourceRepository: () => IMetricsSourceRepository;
@@ -119,5 +119,4 @@ const applicationContainer: ApplicationContainer = {
   getZipClient: () => createZipClient(),
 };
 
-// Export the container
 export default applicationContainer;
