@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import applicationContainer from "@server/applicationContainer";
 import { parseMetrics } from "@server/infrastructure/neo4j/metricsSource";
+import { JSONResponse } from "../responses";
 
 export async function POST(request: NextRequest) {
   if (process.env.METRICS_UPLOAD_ENABLED !== "true") {
-    return NextResponse.json({ error: "Metrics upload is disabled" }, { status: 400 });
+    return JSONResponse(400, { error: "Metrics upload is disabled" });
   }
 
   try {
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest) {
     const mimeType = formData.get("mimeType");
 
     if (mimeType !== "application/x-zip" || !(zipFile instanceof File)) {
-      return NextResponse.json({ error: "File and MIME type are required" }, { status: 400 });
+      return JSONResponse(400, { error: "File and MIME type are required" });
     }
 
     const buffer = Buffer.from(await zipFile.arrayBuffer());
@@ -25,11 +26,10 @@ export async function POST(request: NextRequest) {
     const metricsService = applicationContainer.getMetricsService();
     await metricsService.saveMetrics(metricsByModule, metadata.commitSHA, metadata.commitDate);
 
-    return NextResponse.json(
-      { message: `Metadata and Metrics for commit '${metadata.commitSHA}' written to InfluxDB` },
-      { status: 200 },
-    );
+    return JSONResponse(200, {
+      message: `Metadata and Metrics for commit '${metadata.commitSHA}' written to InfluxDB`,
+    });
   } catch (error) {
-    return NextResponse.json({ error: error?.toString() }, { status: 500 });
+    return JSONResponse(500, { error });
   }
 }

@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import applicationContainer from "@server/applicationContainer";
+import { JSONResponse } from "../responses";
 
 export async function POST(request: NextRequest) {
   const metricsSourceRepository = applicationContainer.getMetricsSourceRepository();
@@ -9,7 +10,7 @@ export async function POST(request: NextRequest) {
   try {
     const { artifactID } = await request.json();
     if (!artifactID) {
-      return NextResponse.json({ error: "Missing artifactID" }, { status: 400 });
+      return JSONResponse(400, { error: "Missing artifactID" });
     }
 
     const { metadata, metricsByModule } = await metricsSourceRepository.getMetrics(artifactID);
@@ -17,20 +18,16 @@ export async function POST(request: NextRequest) {
 
     const commitExists = await metadataService.doesCommitExist(commitSHA);
     if (commitExists) {
-      return NextResponse.json(
-        { error: `Metrics for commit ${commitSHA} already exists` },
-        { status: 400 },
-      );
+      return JSONResponse(400, { error: `Metrics for commit ${commitSHA} already exists` });
     }
 
     await metadataService.saveMetadata(commitSHA, commitDate, artifactID);
     await metricsService.saveMetrics(metricsByModule, commitSHA, commitDate);
 
-    return NextResponse.json(
-      { message: `Metadata and Metrics for commit '${commitSHA}' written to InfluxDB` },
-      { status: 200 },
-    );
+    return JSONResponse(200, {
+      message: `Metadata and Metrics for commit '${commitSHA}' written to InfluxDB`,
+    });
   } catch (error) {
-    return NextResponse.json({ error: error?.toString() }, { status: 500 });
+    return JSONResponse(500, { error });
   }
 }

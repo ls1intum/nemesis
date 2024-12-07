@@ -311,7 +311,7 @@ export class metricsRepositoryImpl implements IMetricsRepository {
         |> filter(fn: (r) => r._measurement == "lines_of_code")
     `;
     const rows = await this.influxClient.collectRows(query);
-    return validateLinesOfCodeSchema(rows[0]);
+    return validateLinesOfCodeSchema(rows);
   }
 
   async getEntityGraphCount(commitSHA: string, module: string): Promise<number> {
@@ -323,7 +323,7 @@ export class metricsRepositoryImpl implements IMetricsRepository {
         |> filter(fn: (r) => r._measurement == "entity_graph_count")
     `;
     const rows = await this.influxClient.collectRows(query);
-    return validateEntityGraphCountSchema(rows[0]);
+    return validateEntityGraphCountSchema(rows);
   }
 
   async getEntityCount(commitSHA: string, module: string): Promise<number> {
@@ -339,7 +339,7 @@ export class metricsRepositoryImpl implements IMetricsRepository {
     if (!rows.length) {
       return 0;
     }
-    return validateEntityCountSchema(rows[0]);
+    return validateEntityCountSchema(rows);
   }
 
   async getNumberEndpoints(commitSHA: string, module: string): Promise<number> {
@@ -351,7 +351,7 @@ export class metricsRepositoryImpl implements IMetricsRepository {
         |> filter(fn: (r) => r._measurement == "number_endpoints")
     `;
     const rows = await this.influxClient.collectRows(query);
-    return validateNumberEndpointsSchema(rows[0]);
+    return validateNumberEndpointsSchema(rows);
   }
 
   async getClassCount(commitSHA: string, module: string): Promise<number> {
@@ -363,7 +363,7 @@ export class metricsRepositoryImpl implements IMetricsRepository {
         |> filter(fn: (r) => r._measurement == "class_count")
     `;
     const rows = await this.influxClient.collectRows(query);
-    return validateClassCountSchema(rows[0]);
+    return validateClassCountSchema(rows);
   }
 
   async getRepositoryMethodLengths(

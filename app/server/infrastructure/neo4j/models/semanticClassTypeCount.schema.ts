@@ -1,29 +1,19 @@
 import { z } from "zod";
 import { SemanticClassTypeCountDAO } from "@server/domain/dao/semanticClassTypeCount";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
 export const validateSemanticClassTypeCount = (
   data: string,
 ): Record<string, SemanticClassTypeCountDAO> => {
   const jsonData = JSON.parse(data);
-  const result = CompleteSchema.safeParse(jsonData);
-  if (!result.success) {
-    throw new Error("Invalid data format");
+  const result = parsedSchema.safeParse(jsonData);
+  if (result.error) {
+    throw new ZodValidationError(result.error);
   }
   return result.data;
 };
 
-const DataRowSchema = z.object({
-  row: z.tuple([
-    z.string(), // Module name
-    z.number(), // numberController
-    z.number(), // numberService
-    z.number(), // numberRepository
-    z.number(), // numberEntities
-    z.number(), // numberDTOs
-  ]),
-});
-
-const ResultsSchema = z.object({
+const rawSchema = z.object({
   results: z
     .array(
       z.object({
@@ -39,13 +29,24 @@ const ResultsSchema = z.object({
             ]),
           )
           .length(6),
-        data: z.array(DataRowSchema),
+        data: z.array(
+          z.object({
+            row: z.tuple([
+              z.string(), // Module name
+              z.number(), // numberController
+              z.number(), // numberService
+              z.number(), // numberRepository
+              z.number(), // numberEntities
+              z.number(), // numberDTOs
+            ]),
+          }),
+        ),
       }),
     )
-    .min(1), // Ensure at least one result object
+    .length(1),
 });
 
-const CompleteSchema = ResultsSchema.transform((data) => {
+const parsedSchema = rawSchema.transform((data) => {
   const result = data.results[0];
   const { columns, data: rows } = result;
 

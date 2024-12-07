@@ -1,14 +1,34 @@
 import { z } from "zod";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
 export const validateEntityCountPerModule = (data: string): Record<string, number> => {
   const jsonData = JSON.parse(data);
 
-  const parsed = inputSchema.safeParse(jsonData);
-  if (!parsed.success) {
-    throw new Error(`Invalid data format in entity_count: ${parsed.error}`);
+  const parsed = parsedSchema.safeParse(jsonData);
+  if (parsed.error) {
+    throw new ZodValidationError(parsed.error);
   }
 
-  return parsed.data.results[0].data.reduce(
+  return parsed.data;
+};
+
+const rawSchema = z.object({
+  results: z
+    .array(
+      z.object({
+        columns: z.array(z.string()),
+        data: z.array(
+          z.object({
+            row: z.tuple([z.string(), z.number()]),
+          }),
+        ),
+      }),
+    )
+    .length(1),
+});
+
+const parsedSchema = rawSchema.transform((data) => {
+  return data.results[0].data.reduce(
     (acc, item) => {
       const [moduleName, numberEntity] = item.row;
       acc[moduleName] = numberEntity;
@@ -16,17 +36,4 @@ export const validateEntityCountPerModule = (data: string): Record<string, numbe
     },
     {} as Record<string, number>,
   );
-};
-
-const inputSchema = z.object({
-  results: z.array(
-    z.object({
-      columns: z.array(z.string()),
-      data: z.array(
-        z.object({
-          row: z.tuple([z.string(), z.number()]),
-        }),
-      ),
-    }),
-  ),
 });

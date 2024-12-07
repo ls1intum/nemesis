@@ -1,12 +1,24 @@
 import { z } from "zod";
 import { EndpointTypeCountDAO } from "@server/domain/dao/endpointTypeCount";
-
-const EndpointTypeCountRowSchema = z.object({
-  method: z.enum(["get", "post", "put", "delete", "patch"]),
-  _value: z.number(),
-});
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
 export const validateEndpointTypeCountSchema = (data: unknown[]): EndpointTypeCountDAO => {
+  const parsed = parsedSchema.safeParse(data);
+  if (parsed.error) {
+    throw new ZodValidationError(parsed.error);
+  }
+
+  return parsed.data;
+};
+
+const rawSchema = z.array(
+  z.object({
+    method: z.enum(["get", "post", "put", "delete", "patch"]),
+    _value: z.number(),
+  }),
+);
+
+const parsedSchema = rawSchema.transform((data) => {
   const endpointCounts: EndpointTypeCountDAO = {
     get: 0,
     post: 0,
@@ -15,16 +27,9 @@ export const validateEndpointTypeCountSchema = (data: unknown[]): EndpointTypeCo
     patch: 0,
   };
 
-  data.forEach((row, index) => {
-    const parsed = EndpointTypeCountRowSchema.safeParse(row);
-    if (!parsed.success) {
-      throw new Error(
-        `Invalid data format when parsing endpoint type count row ${index}: ${parsed.error}`,
-      );
-    }
-    const { method, _value } = parsed.data;
-    endpointCounts[method] += _value;
+  data.forEach((row) => {
+    endpointCounts[row.method] += row._value;
   });
 
   return endpointCounts;
-};
+});

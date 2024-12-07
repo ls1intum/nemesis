@@ -1,17 +1,18 @@
 import { z } from "zod";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
 export const validateLinesOfCode = (data: string): Record<string, number> => {
   const parsedData = JSON.parse(data);
-  const result = CompleteSchema.safeParse(parsedData);
+  const result = parsedSchema.safeParse(parsedData);
 
-  if (!result.success) {
-    throw new Error(`Failed to validate data: ${result.error.message}`);
+  if (result.error) {
+    throw new ZodValidationError(result.error);
   }
 
   return result.data;
 };
 
-const LinesOfCodeSchema = z.object({
+const rawSchema = z.object({
   results: z
     .array(
       z.object({
@@ -29,7 +30,7 @@ const LinesOfCodeSchema = z.object({
     .min(1),
 });
 
-const TransformSchema = LinesOfCodeSchema.transform((data) => {
+const parsedSchema = rawSchema.transform((data) => {
   const result = data.results[0]; // Assuming we're interested in the first result
   const { columns, data: rows } = result;
 
@@ -50,5 +51,3 @@ const TransformSchema = LinesOfCodeSchema.transform((data) => {
 
   return record;
 });
-
-const CompleteSchema = TransformSchema;

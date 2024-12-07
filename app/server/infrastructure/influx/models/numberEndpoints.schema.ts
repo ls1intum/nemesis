@@ -1,13 +1,10 @@
-import { z } from "zod";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
+import { SimpleValueSchema } from "@server/infrastructure/influx/models/simpleValueSchema";
 
 export const validateNumberEndpointsSchema = (data: unknown): number => {
-  const parsed = NumberEndpointsSchema.safeParse(data);
+  const parsed = SimpleValueSchema.safeParse(data);
   if (!parsed.success) {
-    throw new Error("Invalid data format for Number Endpoints.");
+    throw new ZodValidationError(parsed.error);
   }
-  return parsed.data._value;
+  return parsed.data;
 };
-
-const NumberEndpointsSchema = z.object({
-  _value: z.number(),
-});

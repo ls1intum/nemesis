@@ -1,20 +1,23 @@
 import { z } from "zod";
 import { MetadataDAO } from "@server/domain/dao/metadata";
+import { ZodValidationError } from "@server/domain/value/zodValidationError";
 
 export const parseMetadata = (data: string): MetadataDAO => {
-  const query = validateMetadata(JSON.parse(data));
-  if (!query.success) {
-    throw new Error(query.error.message);
+  const jsonData = JSON.parse(data);
+
+  const query = validateMetadata(jsonData);
+  if (query.error) {
+    throw new ZodValidationError(query.error);
   }
 
   return query.data;
 };
 
 const validateMetadata = (data: unknown) => {
-  return metadataSchema.safeParse(data);
+  return parsedSchema.safeParse(data);
 };
 
-const metadataSchema = z.object({
+const parsedSchema = z.object({
   commitSHA: z.string().min(1, "commitSHA cannot be empty"),
   commitDate: z.string().transform((dateString, ctx) => {
     const parsedDate = new Date(dateString);
