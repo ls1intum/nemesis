@@ -16,16 +16,6 @@ jobs:
       name: production
       url: 'https://${{ vars.SERVER_HOST }}'
     steps:
-      - name: Check image tag exists
-        run: |
-          URL="https://ghcr.io/v2/${{ github.repository }}/manifests/${{ github.event.inputs.IMAGE_TAG }}"
-          STATUS=$(curl -w "%{http_code}" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $URL)
-
-          if [ "$STATUS" -ne 200 ]; then
-            echo "Image with TAG '${{ github.event.inputs.IMAGE_TAG }}'' not found in GitHub Container Registry. Aborting..."
-            exit 1
-          fi
-
       - name: SSH to VM and Execute Docker-Compose Down
         uses: appleboy/ssh-action@master
         with:
@@ -42,7 +32,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: Set image tag in DOcker Compose File
+      - name: Set image tag in Docker Compose File
         run: |
           sed -i "s/\$IMAGE_TAG/${{ github.event.inputs.IMAGE_TAG }}/g" docker-compose.prod.yml
 

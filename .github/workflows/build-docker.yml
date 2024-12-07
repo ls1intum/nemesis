@@ -26,7 +26,7 @@ jobs:
 
       - name: Set up Docker builder
         run: |
-          docker buildx create --name mybuilder --use
+          docker buildx create --use
           docker buildx inspect --bootstrap
 
       - name: Get short commit hash for Docker tag
