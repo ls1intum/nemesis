@@ -9,10 +9,14 @@ export const validateClassCountSchema = (data: unknown): number => {
   return parsed.data;
 };
 
-const rawSchema = z.object({
-  _value: z.number(),
-});
+const rawSchema = z
+  .array(
+    z.object({
+      _value: z.number(),
+    }),
+  )
+  .length(1);
 
 const parsedSchema = rawSchema.transform((data) => {
-  return data._value;
+  return data[0]._value;
 });

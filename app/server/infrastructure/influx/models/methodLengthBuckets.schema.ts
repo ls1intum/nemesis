@@ -13,8 +13,8 @@ export const validateMethodLengthBucketsSchema = (data: unknown): MethodLengthBu
 
 const rawSchema = z.array(
   z.object({
-    loc_start_inclusive: z.number(),
-    loc_end_inclusive: z.number(),
+    loc_start_inclusive: z.string(),
+    loc_end_inclusive: z.string(),
 
     _value: z.number(),
   }),
@@ -23,8 +23,8 @@ const rawSchema = z.array(
 const parsedSchema = rawSchema.transform((data) => {
   return data.map((row) => {
     return {
-      locStartInclusive: row.loc_start_inclusive,
-      locEndInclusive: row.loc_end_inclusive,
+      locStartInclusive: Number(row.loc_start_inclusive),
+      locEndInclusive: Number(row.loc_end_inclusive),
       count: row._value,
     };
   });
