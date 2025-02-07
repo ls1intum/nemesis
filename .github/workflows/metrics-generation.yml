@@ -37,6 +37,11 @@ jobs:
           shopt -s extglob
           cp build/libs/Artemis-!(*-plain|plain).jar  ../Artemis.jar
 
+      - name: Install required APT dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
       - name: Download jqassistant CLI
         run: |
           wget -O jqassistant-cli.zip "https://repo1.maven.org/maven2/com/buschmais/jqassistant/cli/jqassistant-commandline-neo4jv5/2.5.0/jqassistant-commandline-neo4jv5-2.5.0-distribution.zip"
