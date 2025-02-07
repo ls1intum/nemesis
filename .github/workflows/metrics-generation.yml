@@ -34,7 +34,8 @@ jobs:
           chmod +x gradlew
           ./gradlew build -x webapp -x test
           echo "Artemis project built."
-          cp build/libs/Artemis-*.jar ../Artemis.jar
+          shopt -s extglob
+          cp build/libs/Artemis-!(*-plain|plain).jar  ../Artemis.jar
 
       - name: Download jqassistant CLI
         run: |
