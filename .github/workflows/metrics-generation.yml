@@ -106,7 +106,7 @@ jobs:
           echo "Artifact URL: $artifact_url"
           echo "Artifact ID: $artifact_id"
           
-          curl -X POST -H "Content-Type: application/json" -d "{\"artifactID\": \"$artifact_id\"}" "https://${{ vars.SERVER_HOST }}/api/trigger-metrics-scrape"
+          curl -k -X POST -H "Content-Type: application/json" -d "{\"artifactID\": \"$artifact_id\"}" "https://${{ vars.SERVER_HOST }}/api/trigger-metrics-scrape"
         if: always()
 
       - name: Clean Up Docker Containers
